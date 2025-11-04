@@ -1,0 +1,5 @@
+{
+  "name": "Virtual Physics Laboratory: Double Pendulum",
+  "description": "An interactive 3D physics simulation of a double pendulum built with React, React Three Fiber, Rapier, and D3.js. Users can manipulate physical parameters and observe the chaotic motion and energy conservation in real-time.",
+  "requestFramePermissions": []
+}
