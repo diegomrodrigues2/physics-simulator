@@ -6,13 +6,22 @@ import { OrbitControls, Environment, Grid, Line } from '@react-three/drei';
 import { Vector3 } from 'three';
 import useSimulationStore from '../store/useSimulationStore';
 import PointParticle from './FallingSphere';
+import DoublePendulum from './DoublePendulum';
 
 const FORCE_MULTIPLIER = 5;
 
 const PhysicsScene: React.FC = () => {
-  const { gravityY, paused, objects, interactionMode, addObject, selectObject, forceState, setForceState } = useSimulationStore();
+  const { gravityY, paused, objects, interactionMode, addObject, selectObject, forceState, setForceState, simulationMode } = useSimulationStore();
   const bodyRefs = useRef<Map<string, RapierRigidBody>>(new Map());
   const [forceVectorVisual, setForceVectorVisual] = useState<{ start: [number, number, number], end: [number, number, number] } | null>(null);
+  
+  const manageBodyRef = (id: string, ref: RapierRigidBody | null) => {
+    if (ref) {
+      bodyRefs.current.set(id, ref);
+    } else {
+      bodyRefs.current.delete(id);
+    }
+  };
   
   const handleSceneClick = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
@@ -74,17 +83,15 @@ const PhysicsScene: React.FC = () => {
                 <CuboidCollider args={[50, 0.1, 50]} position={[0, -0.1, 0]} />
             </RigidBody>
 
-            {/* Render all objects from the store */}
-            {objects.map((obj) => (
+            {simulationMode === 'sandbox' && objects.map((obj) => (
                 <PointParticle 
                   key={obj.id} 
                   objectData={obj}
-                  onRefReady={(id, ref) => {
-                    if (ref) bodyRefs.current.set(id, ref);
-                    else bodyRefs.current.delete(id);
-                  }}
+                  onRefReady={manageBodyRef}
                 />
             ))}
+
+            {simulationMode === 'double_pendulum' && <DoublePendulum manageBodyRef={manageBodyRef} />}
         </Physics>
         
         {/* FIX: An invisible plane to catch pointer events for scene interactions. */}
